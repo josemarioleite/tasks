@@ -67,7 +67,7 @@ export default {
         return {
             linkRunnit: 'https://runrun.it/pt-BR/tasks/',
             rowCount: 0,
-            filter: null,
+            filter: undefined,
             isLoading: false,
             optionTypeSelected: null,
             optionsType: [],

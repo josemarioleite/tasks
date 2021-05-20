@@ -11,7 +11,11 @@
                     <div class="row col-12">
                         <div class="q-mb-sm row col-12">
                             <q-input :error="errorNameTask" class="col-7 inputs" label-color="white" dark outlined v-model="nameTask" label="Nome" />
-                            <q-input :error="errorIdTask" class="col-5 inputs" label-color="white" dark outlined v-model="idTask" label="ID da Tarefa" />
+                            <q-input :error="errorIdTask" class="col-5 inputs" label-color="white" dark outlined v-model="idTask" label="ID da Tarefa">
+                                <template v-slot:append>
+                                    <q-icon name="get_app" @click="getDataTask" />
+                                </template>
+                            </q-input>
                         </div>
                         <div class="q-mb-sm row col-12">
                             <q-select :error="errorTypeSelected" class="col-7 inputs" label-color="white" dark outlined v-model="typeSelected" :options="typeOptions" option-label="nome" option-value="id" label="Tipo" />
@@ -73,7 +77,7 @@
 
 <script>
 import { Get, Post } from 'src/utils/Conexao.js'
-import { ConverteStringPraDatetime } from 'src/utils/Dates.js'
+import { ConverteStringPraDatetime, ConverteDatetimePraString } from 'src/utils/Dates.js'
 
 export default {
     name: 'Dialog-NewTask',
@@ -120,11 +124,35 @@ export default {
             Get('v1/quadro').then(res => {
                 this.frameOptions = res.data
             })
-            Get('v1/projeto').then(res => {
+            Get('v1/clientes').then(res => {
                 this.clientOptions = res.data.sort(function (a, b) {
                     return a - b
                 })
             })
+        },
+        getDataTask () {
+            if (this.idTask === null || this.idTask === '' || this.idTask === undefined) {
+                this.$q.notify({
+                    message: 'Informe o ID da tarefa para prosseguir',
+                    type: 'negative',
+                    timeout: 2000
+                })
+            } else {
+                Get('v1/runnittask/' + this.idTask).then(res => {
+                    // console.log(res.data)
+                    this.nameTask = res.data.title
+                    var data = new Date(res.data.close_date).toLocaleDateString('pt-BR')
+                    this.clientSelected = res.data.client_name
+                    this.dateTask = data
+                }).catch(err => {
+                    this.$q.notify({
+                        message: err.message,
+                        type: 'negative',
+                        timeout: 5000
+                    })
+                })
+                
+            }
         },
         filterClient (val, update) {
             if (val === '') {
@@ -151,7 +179,7 @@ export default {
                     campoVazio = false
                 }
 
-                if (this.nameTask === '' || this.nameTask === null) {
+                if (this.nameTask === '' || this.nameTask === null || this.nameTask.length > 50) {
                     this.errorNameTask = true
                     campoVazio = true
                 } else {
@@ -222,8 +250,13 @@ export default {
                     task.data = await ConverteStringPraDatetime(this.dateTask)
                     task.quadroid = Number(this.frameSelected.id)
                     task.tipoid = Number(this.typeSelected.id)
-                    task.cliente = this.clientSelected.name
+                    if (this.clientSelected.name === undefined || this.clientSelected.name === null) {
+                        task.cliente = this.clientSelected
+                    } else {
+                        task.cliente = this.clientSelected.name
+                    }
                     task.tarefaid = this.idTask
+                    console.log(task)
 
                     setTimeout(() => {
                         Post('v1/tarefa/novo', task).then(res => {

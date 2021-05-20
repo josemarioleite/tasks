@@ -5,8 +5,9 @@ const protocolo = location.protocol
 
 const portaHttp = 9876
 const portaHttps = 9877
+const linkUrlTarefa = 'https://runrun.it/api/v1.0/tasks/'
 
-let url = protocolo + '//localhost:'
+let url = protocolo + '//192.168.0.14:'
 if (protocolo === 'http:') {
   url = url + portaHttp + '/api/'
 } else if (protocolo === 'https:') {
