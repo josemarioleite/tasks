@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     newTask () {
-      this.$refs.newTask.openDialog()
+      this.$refs.newTask.openDialog('S')
     },
     updateTable () {
       this.$refs.content.updateTable()

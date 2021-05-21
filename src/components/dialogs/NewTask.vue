@@ -63,7 +63,7 @@
             </q-page-container>
             <q-footer class="bg-dark">
                 <div class="row justify-center q-pa-sm">
-                    <q-btn label="Fechar" class="q-mr-sm" color="red" @click="openDialog" />
+                    <q-btn label="Fechar" class="q-mr-sm" color="red" @click="openDialog('N')" />
                     <q-btn label="Salvar" color="green" @click="addNewTask" />
                 </div>
             </q-footer>
@@ -109,9 +109,12 @@ export default {
             this.typeSelected = null
             this.dateTask = ''
         },
-        openDialog () {
+        openDialog (loadData) {
             this.show = !this.show
-            this.cleanDatas()
+            var load = loadData
+            if (load == 'S') {
+                this.getDatas()
+            }
         },
         getDatas () {
             Get('v1/tipo').then(res => {
@@ -120,7 +123,7 @@ export default {
             Get('v1/quadro').then(res => {
                 this.frameOptions = res.data
             })
-            Get('v1/projeto').then(res => {
+            Get('v1/clientes').then(res => {
                 this.clientOptions = res.data.sort(function (a, b) {
                     return a - b
                 })
@@ -242,7 +245,7 @@ export default {
                                     timeout: 2000
                                 })
                             }
-                            this.openDialog()
+                            this.openDialog('N')
                         }).catch(err => {
                             this.$q.notify({
                                 message: 'Erro ao inserir tarefa',
@@ -263,9 +266,6 @@ export default {
                 this.idType = val.id
             }
         }
-    },
-    created () {
-        this.getDatas()
     }
 }
 </script>
