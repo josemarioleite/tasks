@@ -1,8 +1,13 @@
 <template>
   <div class="q-pa-xs">
     <div class="row q-mb-sm">
-        <q-select filled dense v-model="optionTypeSelected" label-color="primary"
+        <q-select filled dense v-model="optionTypeSelected" label-color="dark"
             :options="optionsType" option-value="id" option-label="nome" label="Tipo"
+            counter max-values="1" hint="Máx: 1" style="width: 250px"
+        />
+        <q-separator class="q-ml-sm" />
+        <q-select filled dense v-model="optionFrameSelected" label-color="dark"
+            :options="optionsFrame" option-value="id" option-label="nome" label="Quadro"
             counter max-values="1" hint="Máx: 1" style="width: 250px"
         />
     </div>
@@ -20,8 +25,13 @@
         :columns="columns"
     >
         <template v-slot:top-left>
-            <div class="row col-12 items-center">
-                <div class="text-h4 text-weight-light">Tarefas: {{rowCount}}</div>
+            <div class="col-12 items-center">
+                <div class="row">
+                    <div class="text-h4 text-weight-light">Tarefas: {{rowCount}}</div>
+                </div>
+                <div class="row">
+                    <div class="text-weight-light q-ml-xs" style="font-size: 15px">Total: {{totalRowCount}}</div>
+                </div>
             </div>
         </template>
         <template v-slot:top-right>
@@ -67,10 +77,13 @@ export default {
         return {
             linkRunnit: 'https://runrun.it/pt-BR/tasks/',
             rowCount: 0,
-            filter: null,
+            totalRowCount: 0,
+            filter: undefined,
             isLoading: false,
             optionTypeSelected: null,
             optionsType: [],
+            optionFrameSelected: null,
+            optionsFrame: [],
             data: [],
             columns: [
                 { name: 'id', headerClasses: 'bg-dark text-white', required: true, label: 'ID', align: 'right', field: 'id', style: 'width: 5px'},
@@ -97,7 +110,15 @@ export default {
     },
     watch: {
         optionTypeSelected: function (val) {
-            if (val !== undefined || val !== null || val !== '') {
+            if (this.optionTypeSelected !== null) {
+                if (val.nome !== null) {
+                    this.filter = convertToSlug(val.nome)
+                    this.dateRequest()
+                }
+            }
+        },
+        optionFrameSelected: function (val) {
+            if (this.optionFrameSelected !== null) {
                 if (val.nome !== null) {
                     this.filter = convertToSlug(val.nome)
                     this.dateRequest()
@@ -109,6 +130,9 @@ export default {
         getTypes () {
             Get('v1/tipo').then(res => {
                 this.optionsType = res.data
+            })
+            Get('v1/quadro').then(res => {
+                this.optionsFrame = res.data
             })
         },
         async dateRequest () {
@@ -146,22 +170,29 @@ export default {
 
             Get(`v1/tarefa/?filter=${filter}&onlyRowCount=true`).then(result => {
                 this.pagination.rowsNumber = result.data.rowCount
-                this.rowCount = result.data.rowCount
+                this.totalRowCount = result.data.rowCount
             })
 
             const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage
             const returnedData = await Get(`v1/tarefa/?countRows=true&filter=${filter}&pageIndex=${page}&pageSize=${fetchCount}`)
             this.data.splice(0, this.data.length, ...returnedData.data.tarefa)
+            this.rowCount = returnedData.data.rowCount
             this.pagination.page = page
             this.pagination.rowsPerPage = rowsPerPage
             this.datas = this.data
             this.isLoading = false
         },
         async loaderItems () {
-            await this.onRequest({
-                pagination: this.pagination,
-                filter: undefined
-            })
+            if (this.filter !== null || this.filter.length >= 1) {
+                await this.onRequest({
+                    pagination: this.pagination
+                })
+            } else {
+                await this.onRequest({
+                    pagination: this.pagination,
+                    filter: undefined
+                })
+            }
         },
         dateCurrent () {
             var date = new Date().toDateString()
@@ -172,6 +203,8 @@ export default {
         loaderItensAndCleanDates () {
             this.loaderItems()
             this.filter = undefined
+            this.optionTypeSelected = null
+            this.optionFrameSelected = null
             const date = {
                 from: undefined,
                 to: undefined
