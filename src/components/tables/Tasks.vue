@@ -39,7 +39,7 @@
                 <div class="row">
                     <q-btn icon="event" round color="primary" class="q-mr-md">
                         <q-popup-proxy transition-show="scale" transition-hide="scale">
-                            <q-date @click="dateRequest" v-model="date" range />
+                            <q-date @click="loaderItems" v-model="date" range />
                         </q-popup-proxy>
                     </q-btn>
                     <div>
@@ -88,7 +88,7 @@ export default {
             columns: [
                 { name: 'id', headerClasses: 'bg-dark text-white', required: true, label: 'ID', align: 'right', field: 'id', style: 'width: 5px'},
                 { name: 'tarefaid', headerClasses: 'bg-dark text-white', required: true, label: 'Tarefa', align: 'center', style: 'width: 20px'},
-                { name: 'nome', headerClasses: 'bg-dark text-white', required: true, label: 'Nome', align: 'left', field: 'nome', style: 'width: 150px'},
+                { name: 'nome', headerClasses: 'bg-dark text-white', required: true, label: 'Nome', align: 'left', field: 'nome', style: 'width: 100px'},
                 { name: 'cliente', headerClasses: 'bg-dark text-white', required: true, label: 'Cliente', align: 'left', field: 'cliente', style: 'width: 150px'},
                 { name: 'data', headerClasses: 'bg-dark text-white', required: true, label: 'Data', align: 'center', field: row => new Date(row.data).toLocaleDateString('pt-BR'), style: 'width: 50px'},
                 { name: 'quadro', headerClasses: 'bg-dark text-white', required: true, label: 'Quadro', align: 'left', field: row => row.quadro.nome, style: 'width: 50px'},
@@ -113,7 +113,7 @@ export default {
             if (this.optionTypeSelected !== null) {
                 if (val.nome !== null) {
                     this.filter = convertToSlug(val.nome)
-                    this.dateRequest()
+                    this.loaderItems()
                 }
             }
         },
@@ -121,7 +121,7 @@ export default {
             if (this.optionFrameSelected !== null) {
                 if (val.nome !== null) {
                     this.filter = convertToSlug(val.nome)
-                    this.dateRequest()
+                    this.loaderItems()
                 }
             }
         }
@@ -135,37 +135,11 @@ export default {
                 this.optionsFrame = res.data
             })
         },
-        async dateRequest () {
-            const {page, rowsPerPage } = this.pagination
-            const dateFrom = this.date.from
-            const dateTo = this.date.to
-            const filter = this.filter
-
-            if (dateFrom !== undefined && dateTo !== undefined) {
-                this.isLoading = true
-
-                if (filter !== null || filter !== undefined || filter !== '') {
-                    Get(`v1/tarefa/?startDate=${dateFrom}&finalDate=${dateTo}&onlyRowCount=true`).then(result => {
-                        this.pagination.rowsNumber = result.data.rowCount
-                    })
-                } else {
-                    Get(`v1/tarefa/?filter=${filter}&startDate=${dateFrom}&finalDate=${dateTo}&onlyRowCount=true`).then(result => {
-                        this.pagination.rowsNumber = result.data.rowCount
-                    })
-                }
-
-                const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage
-                const returnedData = await Get(`v1/tarefa/?countRows=true&pageIndex=${page}&pageSize=${fetchCount}&startDate=${dateFrom}&finalDate=${dateTo}`)
-                this.data.splice(0, this.data.length, ...returnedData.data.tarefa)
-                this.rowCount = returnedData.data.rowCount
-                this.pagination.page = page
-                this.pagination.rowsPerPage = rowsPerPage
-                this.isLoading = false
-            }
-        },
         async onRequest (props) {
             const {page, rowsPerPage } = props.pagination
             const filter = props.filter
+            const dateFrom = this.date.from
+            const dateTo = this.date.to
             this.isLoading = true
 
             Get(`v1/tarefa/?filter=${filter}&onlyRowCount=true`).then(result => {
@@ -174,7 +148,14 @@ export default {
             })
 
             const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage
-            const returnedData = await Get(`v1/tarefa/?countRows=true&filter=${filter}&pageIndex=${page}&pageSize=${fetchCount}`)
+            var returnedData = {}
+
+            if (dateFrom !== undefined && dateTo !== undefined) {
+                returnedData = await Get(`v1/tarefa/?countRows=true&filter=${filter}&pageIndex=${page}&pageSize=${fetchCount}&startDate=${dateFrom}&finalDate=${dateTo}`)                
+            } else {
+                returnedData = await Get(`v1/tarefa/?countRows=true&filter=${filter}&pageIndex=${page}&pageSize=${fetchCount}`)
+            }
+
             this.data.splice(0, this.data.length, ...returnedData.data.tarefa)
             this.rowCount = returnedData.data.rowCount
             this.pagination.page = page
@@ -183,7 +164,7 @@ export default {
             this.isLoading = false
         },
         async loaderItems () {
-            if (this.filter !== null || this.filter.length >= 1) {
+            if (this.filter !== undefined) {
                 await this.onRequest({
                     pagination: this.pagination
                 })
@@ -201,7 +182,6 @@ export default {
             }
         },
         loaderItensAndCleanDates () {
-            this.loaderItems()
             this.filter = undefined
             this.optionTypeSelected = null
             this.optionFrameSelected = null
@@ -210,6 +190,7 @@ export default {
                 to: undefined
             }
             this.date = date
+            this.loaderItems()
         }
     },
     created () {
