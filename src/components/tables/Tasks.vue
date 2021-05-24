@@ -124,7 +124,7 @@ export default {
         optionTypeSelected: function (val) {
             if (this.optionTypeSelected !== null) {
                 if (val.nome !== null) {
-                    this.filter = convertToSlug(val.nome)
+                    this.filter = val.nome//convertToSlug(val.nome)
                     this.loaderItems()
                 }
             }
@@ -132,7 +132,7 @@ export default {
         optionFrameSelected: function (val) {
             if (this.optionFrameSelected !== null) {
                 if (val.nome !== null) {
-                    this.filter = convertToSlug(val.nome)
+                    this.filter = val.nome//convertToSlug(val.nome)
                     this.loaderItems()
                 }
             }
