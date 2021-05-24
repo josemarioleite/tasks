@@ -64,6 +64,10 @@
                                 </template>
                             </q-input>
                         </div>
+                        <div class="row col-12 items-center justify-end q-mt-sm">
+                            <div class="text-white">Urgente: </div>
+                            <q-toggle v-model="isUrgent" color="red" />
+                        </div>
                     </div>
                 </q-page>
             </q-page-container>
@@ -84,6 +88,7 @@ export default {
     name: 'Dialog-NewTask',
     data () {
         return {
+            isUrgent: false,
             idTask: null,
             errorIdTask: false,
             nameTask: null,
@@ -144,10 +149,10 @@ export default {
                 })
             } else {
                 Get('v1/runnittask/' + this.idTask).then(res => {
-                    // console.log(res.data)
                     this.nameTask = res.data.title
                     var data = new Date(res.data.close_date).toLocaleDateString('pt-BR')
                     this.clientSelected = res.data.client_name
+                    this.isUrgent = res.data.is_urgente = true ? true : false
                     this.dateTask = data
                 }).catch(err => {
                     this.$q.notify({
@@ -246,6 +251,11 @@ export default {
                     task.data = await ConverteStringPraDatetime(this.dateTask)
                     task.quadroid = Number(this.frameSelected.id)
                     task.tipoid = Number(this.typeSelected.id)
+                    if (this.isUrgent === false) {
+                        task.urgente = 'N'
+                    } else {
+                        task.urgente = 'S'
+                    }
                     if (this.clientSelected.name === undefined || this.clientSelected.name === null) {
                         task.cliente = this.clientSelected
                     } else {

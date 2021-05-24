@@ -63,6 +63,16 @@
                 <a :href="linkRunnit.concat(props.row.tarefaid)" target="_blank">#{{props.row.tarefaid}}</a>
             </q-td>
         </template>
+        <template v-slot:body-cell-urgente="props">
+            <q-td :props="props">
+                <div v-if="props.row.urgente == 'N'">
+                    <q-btn icon="iens" round dense color="green" :props="props" size="9px" class="q-mr-sm" />
+                </div>
+                <div v-if="props.row.urgente == 'S'">
+                    <q-btn icon="iens" round dense color="red" :props="props" size="9px" class="q-mr-sm" />
+                </div>
+            </q-td>
+        </template>
     </q-table>
   </div>
 </template>
@@ -70,6 +80,7 @@
 <script>
 import { Get } from 'src/utils/Conexao.js'
 import { convertToSlug } from 'src/utils/RemoveAcentos.js'
+import { VerificaLogin } from 'src/utils/VerificaLogin.js'
 
 export default {
     name: 'Tarefas',
@@ -87,6 +98,7 @@ export default {
             data: [],
             columns: [
                 { name: 'id', headerClasses: 'bg-dark text-white', required: true, label: 'ID', align: 'right', field: 'id', style: 'width: 5px'},
+                { name: 'urgente', headerClasses: 'bg-dark text-white', required: true, label: 'Urgente', align: 'center', style: 'width: 5px'},
                 { name: 'tarefaid', headerClasses: 'bg-dark text-white', required: true, label: 'Tarefa', align: 'center', style: 'width: 20px'},
                 { name: 'nome', headerClasses: 'bg-dark text-white', required: true, label: 'Nome', align: 'left', field: 'nome', style: 'width: 100px'},
                 { name: 'cliente', headerClasses: 'bg-dark text-white', required: true, label: 'Cliente', align: 'left', field: 'cliente', style: 'width: 150px'},
@@ -103,8 +115,8 @@ export default {
                 sortBy: 'desc',
                 descending: false,
                 page: 1,
-                rowsPerPage: 10,
-                rowsNumber: 10
+                rowsPerPage: 7,
+                rowsNumber: 7
             },
         }
     },
@@ -136,11 +148,12 @@ export default {
             })
         },
         async onRequest (props) {
+            this.isLoading = true
+
             const {page, rowsPerPage } = props.pagination
             const filter = props.filter
             const dateFrom = this.date.from
             const dateTo = this.date.to
-            this.isLoading = true
 
             Get(`v1/tarefa/?filter=${filter}&onlyRowCount=true`).then(result => {
                 this.pagination.rowsNumber = result.data.rowCount
@@ -161,6 +174,7 @@ export default {
             this.pagination.page = page
             this.pagination.rowsPerPage = rowsPerPage
             this.datas = this.data
+            
             this.isLoading = false
         },
         async loaderItems () {
@@ -194,6 +208,7 @@ export default {
         }
     },
     created () {
+        VerificaLogin()
         this.loaderItems()
         this.dateCurrent()
         this.getTypes()

@@ -18,9 +18,7 @@ import NewTask from 'src/components/dialogs/NewTask.vue'
 
 export default {
   name: 'PageIndex',
-  components: {
-    Header, Content, NewTask
-  },
+  components: { Header, Content, NewTask },
   methods: {
     newTask () {
       this.$refs.newTask.openDialog('S')

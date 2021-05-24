@@ -5,8 +5,8 @@
             <div class="text-center col-12">Data: {{date}}</div>
             <hr class="bg-dark">
             <div class="q-pa-xs row justify-center">
-                <q-input :error="errorLoginUser" class="q-pl-xs q-pr-xs col-12" outlined v-model="loginUser" label="Login" />
-                <q-input :error="errorPasswordUser" class="col-12 q-pl-xs q-pr-xs q-mt-xs" outlined v-model="passwordUser" label="Senha" />
+                <q-input color="black" @keyup.enter="nextFocus()" :error="errorLoginUser" class="q-pl-xs q-pr-xs col-12" outlined v-model="loginUser" label="Login" />
+                <q-input color="black" @keyup.enter="login" type="password" ref="password" :error="errorPasswordUser" class="col-12 q-pl-xs q-pr-xs q-mt-xs" outlined v-model="passwordUser" label="Senha" />
             </div>
             <div class="col-12 row justify-center q-mt-xs">
                 <q-btn @click="login" label="Entrar" color="black" />
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { Post } from 'src/utils/Conexao.js'
+import { Get, Post } from 'src/utils/Conexao.js'
 import { DecodeJWT } from 'src/utils/JwtUtils.js'
 import NewPassword from 'src/components/dialogs/NewPassword.vue'
 
@@ -34,6 +34,9 @@ export default {
         }
     },
     methods: {
+        nextFocus () {
+            this.$refs.password.focus()
+        },
         message (msg, color) {
             this.$q.notify({
                 message: msg,
@@ -96,8 +99,24 @@ export default {
                     })
                 }, 1000);
             })
+        },
+        verifyLogin () {
+            const token = localStorage.getItem('token')
+            if (token === null || token === '' || token === undefined) {
+                console.log('Login')
+            } else {
+                Get('v1/usuario/auth/token').then(res => {
+                    const resposta = res.status
+                    if (resposta === 200) {
+                        this.$router.push('/home')
+                    }
+                })
+            }
         }
-    }
+    },
+    created () {
+        this.verifyLogin()
+    },
 }
 </script>
 
