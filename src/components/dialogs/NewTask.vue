@@ -9,15 +9,17 @@
             <q-page-container>
                 <q-page padding>
                     <div class="row col-12">
-                        <div class="q-mb-sm row col-12">
+                        <div class="row col-12">
                             <q-input :error="errorNameTask" class="col-7 inputs" label-color="white" dark outlined v-model="nameTask" label="Nome" />
                             <q-input :error="errorIdTask" class="col-5 inputs" label-color="white" dark outlined v-model="idTask" label="ID da Tarefa">
                                 <template v-slot:append>
-                                    <q-icon name="get_app" @click="getDataTask" />
+                                    <q-btn icon="get_app" @click="getDataTask">
+                                        <q-tooltip content-style="font-size: 12px">Buscar Tarefa pelo ID</q-tooltip>
+                                    </q-btn>
                                 </template>
                             </q-input>
                         </div>
-                        <div class="q-mb-sm row col-12">
+                        <div class="row col-12">
                             <q-select :error="errorTypeSelected" class="col-7 inputs" label-color="white" dark outlined v-model="typeSelected" :options="typeOptions" option-label="nome" option-value="id" label="Tipo" />
                             <q-select :error="errorFrameSelected" class="col-5 inputs" label-color="white" dark outlined v-model="frameSelected" :options="frameOptions" option-label="nome" option-value="id" label="Quadro" />
                         </div>
@@ -302,5 +304,12 @@ export default {
     }
     .inputs {
         padding: 3px;
+    }
+
+    @media only screen and (max-width: 499px) {
+        .inputs {
+            width: 100%;
+            padding: 5px;
+        }
     }
 </style>
