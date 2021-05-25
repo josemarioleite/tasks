@@ -16,8 +16,8 @@
             <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 152px">
                 <div class="absolute-bottom bg-transparent">
                     <q-avatar size="80px" class="q-mb-xs bg-black text-white">
-                        <img v-show="imageUser !== '' || imageUser !== null" :src="imageUser">
-                        <div v-show="imageUser === null || imageUser === ''" class="absolute bg-dark">{{nameUser.substr(0,1)}}</div>
+                        <div v-if="imageUser === ''">{{nameUser.substr(0,1)}}</div>
+                        <img v-else :src="imageUser">
                     </q-avatar>
                     <div class="text-weight-bold text-white">{{nameUser}}</div>
                     <div class="text-white">@{{loginUser}}</div>
@@ -29,9 +29,9 @@
                     <q-item clickable v-ripple @click="exitToApp">
                         <div class="row items-center">
                             <q-item-section avatar>
-                                <div class="row items-center">
+                                <div class="row items-center col-12">
                                     <q-icon color="white" name="exit_to_app" size="28px"/>
-                                    <div class="q-ml-md" style="font-size: 16px">Sair</div>
+                                    <div style="font-size: 16px; margin-left: 20px">Sair</div>
                                 </div>
                             </q-item-section>                            
                         </div>
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { Get, GetRunnit } from 'src/utils/Conexao.js'
+import { Get } from 'src/utils/Conexao.js'
 
 export default {
     name: 'Header',
@@ -64,12 +64,6 @@ export default {
                 this.loginUser = res.data[0].login
                 this.useridrunnit = res.data[0].usuarioidrunnit
             }).catch(err =>{
-                console.log(err)
-            })
-
-            GetRunnit('users/' + this.useridrunnit).then(res => {
-                console.log(res.data)
-            }).catch(err => {
                 console.log(err)
             })
         },

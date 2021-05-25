@@ -34,6 +34,10 @@ export default {
         }
     },
     methods: {
+        cleanField () {
+            this.loginUser = null
+            this.passwordUser = null
+        },
         nextFocus () {
             this.$refs.password.focus()
         },
@@ -83,10 +87,12 @@ export default {
                         if (res.data.status === true) {
                             var token = await DecodeJWT(res.data.token)
                             var json = JSON.parse(token)
-                            sessionStorage.setItem('token', res.data.token)
                             if (json.primeiroacesso === 'S') {
-                                this.$refs.newPassword.openDialog()
+                                this.passwordUser = null
+                                this.$refs.newPassword.openCloseDialog(json.id)
                             } else {
+                                this.cleanField()
+                                sessionStorage.setItem('token', res.data.token)
                                 this.message('Autenticação feita com sucesso!', 'green')
                                 this.$router.push('/home')
                             }

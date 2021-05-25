@@ -13,29 +13,6 @@ if (protocolo === 'http:') {
   url = url + portaHttps + '/api/'
 }
 
-const routeRunnit = 'https://runrun.it/api/v1.0/'
-const headerRunnit = {
-  headers: {
-    'Content-Type': 'application/json',
-    'App-Key': '97517be61ebfba95bc7db28d0263ea20',
-    'User-Token': 'TLsKMI5hONHrVOH16XuI',
-    'Access-Control-Allow-Origin': '*'
-  }
-}
-
-export function GetRunnit (rota) {
-  return new Promise((resolve, reject) => {
-    axios.get(routeRunnit + rota, headerRunnit).then((result) => {
-      resolve(result)
-    }).catch(err => {
-      reject(err)
-    })
-  })
-}
-
-
-
-
 
 export function preparaConexao () {
   return new Promise(resolve => {
