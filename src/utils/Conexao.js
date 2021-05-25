@@ -6,12 +6,36 @@ const protocolo = location.protocol
 const portaHttp = 9876
 const portaHttps = 9877
 
-let url = protocolo + '//192.168.0.14:'
+let url = protocolo + '//localhost:'
 if (protocolo === 'http:') {
   url = url + portaHttp + '/api/'
 } else if (protocolo === 'https:') {
   url = url + portaHttps + '/api/'
 }
+
+const routeRunnit = 'https://runrun.it/api/v1.0/'
+const headerRunnit = {
+  headers: {
+    'Content-Type': 'application/json',
+    'App-Key': '97517be61ebfba95bc7db28d0263ea20',
+    'User-Token': 'TLsKMI5hONHrVOH16XuI',
+    'Access-Control-Allow-Origin': '*'
+  }
+}
+
+export function GetRunnit (rota) {
+  return new Promise((resolve, reject) => {
+    axios.get(routeRunnit + rota, headerRunnit).then((result) => {
+      resolve(result)
+    }).catch(err => {
+      reject(err)
+    })
+  })
+}
+
+
+
+
 
 export function preparaConexao () {
   return new Promise(resolve => {
@@ -19,7 +43,7 @@ export function preparaConexao () {
     axios.defaults.headers.post['Content-Type'] = 'application/json'
     axios.defaults.headers.put['Content-Type'] = 'application/json'
     axios.defaults.headers.patch['Content-Type'] = 'application/json'
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token')
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + sessionStorage.getItem('token')
     Guids().then((result) => {
       axios.defaults.headers.common['X-Empresa-Guid'] = result
     })

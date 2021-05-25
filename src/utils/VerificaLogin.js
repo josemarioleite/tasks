@@ -1,9 +1,9 @@
 import { Get } from './Conexao.js'
 
-export function VerificaLogin () {
+export function VerifyLogin () {
   const cliente = window.location.pathname
   const urlAtual = window.location.href
-  const token = localStorage.getItem('token')
+  const token = sessionStorage.getItem('token')
   if (token !== null || token !== '') {
     Get('v1/usuario/auth/token').then(res => {
       const resposta = res.status

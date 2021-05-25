@@ -6,29 +6,80 @@
                 <!-- <q-toolbar-title></q-toolbar-title> -->
             </q-toolbar>
         </q-header>
-        <!-- <q-drawer
+        <q-drawer
+            v-model="drawer"
+            content-class="bg-dark text-white"
             show-if-above
             :width="250"
-            :breakpoint="700"
-            elevated
-            content-class="bg-grey-7 text-white"
+            :breakpoint="400"
         >
-            <q-scroll-area class="fit">
-                <div class="q-pa-sm">
-                    <div v-for="n in 10" :key="n">Drawer {{ n }} / 10</div>
+            <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 152px">
+                <div class="absolute-bottom bg-transparent">
+                    <q-avatar size="80px" class="q-mb-xs bg-black text-white">
+                        <img v-show="imageUser !== '' || imageUser !== null" :src="imageUser">
+                        <div v-show="imageUser === null || imageUser === ''" class="absolute bg-dark">{{nameUser.substr(0,1)}}</div>
+                    </q-avatar>
+                    <div class="text-weight-bold text-white">{{nameUser}}</div>
+                    <div class="text-white">@{{loginUser}}</div>
                 </div>
+            </q-img>
+
+            <q-scroll-area dark style="height: calc(100% - 152px); margin-top: 152px; border-right: 1px solid transparent">
+                <q-list>
+                    <q-item clickable v-ripple @click="exitToApp">
+                        <div class="row items-center">
+                            <q-item-section avatar>
+                                <div class="row items-center">
+                                    <q-icon color="white" name="exit_to_app" size="28px"/>
+                                    <div class="q-ml-md" style="font-size: 16px">Sair</div>
+                                </div>
+                            </q-item-section>                            
+                        </div>
+                    </q-item>
+                </q-list>
             </q-scroll-area>
-        </q-drawer> -->
+        </q-drawer>
     </q-layout>
 </template>
 
 <script>
+import { Get, GetRunnit } from 'src/utils/Conexao.js'
+
 export default {
     name: 'Header',
     data () {
         return {
+            imageUser: '',
+            nameUser: '',
+            loginUser: '',
+            useridrunnit: '',
+            imageUserRunnit: '',
             drawer: false
         }
+    },
+    methods: {
+        getDataUser () {
+            Get('v1/usuario').then(res => {
+                this.nameUser = res.data[0].nome
+                this.loginUser = res.data[0].login
+                this.useridrunnit = res.data[0].usuarioidrunnit
+            }).catch(err =>{
+                console.log(err)
+            })
+
+            GetRunnit('users/' + this.useridrunnit).then(res => {
+                console.log(res.data)
+            }).catch(err => {
+                console.log(err)
+            })
+        },
+        exitToApp () {
+            sessionStorage.clear()
+            location.reload()
+        }
+    },
+    created () {
+        this.getDataUser()
     }
 }
 </script>

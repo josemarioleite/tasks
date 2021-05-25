@@ -79,8 +79,7 @@
 
 <script>
 import { Get } from 'src/utils/Conexao.js'
-import { convertToSlug } from 'src/utils/RemoveAcentos.js'
-import { VerificaLogin } from 'src/utils/VerificaLogin.js'
+import { VerifyLogin } from 'src/utils/VerificaLogin.js'
 
 export default {
     name: 'Tarefas',
@@ -208,7 +207,7 @@ export default {
         }
     },
     created () {
-        VerificaLogin()
+        VerifyLogin()
         this.loaderItems()
         this.dateCurrent()
         this.getTypes()

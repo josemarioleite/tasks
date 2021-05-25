@@ -83,7 +83,7 @@ export default {
                         if (res.data.status === true) {
                             var token = await DecodeJWT(res.data.token)
                             var json = JSON.parse(token)
-                            localStorage.setItem('token', res.data.token)
+                            sessionStorage.setItem('token', res.data.token)
                             if (json.primeiroacesso === 'S') {
                                 this.$refs.newPassword.openDialog()
                             } else {
@@ -101,7 +101,7 @@ export default {
             })
         },
         verifyLogin () {
-            const token = localStorage.getItem('token')
+            const token = sessionStorage.getItem('token')
             if (token === null || token === '' || token === undefined) {
                 console.log('Login')
             } else {
@@ -131,7 +131,7 @@ export default {
 
     .frame {
         width: 50%;
-        height: 45vh;
+        height: 300px;
         border: 1px solid #000;
         border-radius: 5px;
     }

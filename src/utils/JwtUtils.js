@@ -1,6 +1,6 @@
 export function DecodeJWTStorage () {
   return new Promise(resolve => {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     resolve(atob(token.split('.')[1]))
   })
 }
