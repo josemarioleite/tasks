@@ -159,9 +159,10 @@ export default {
                 this.totalRowCount = result.data.rowCount
             })
 
-            const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage
-            var returnedData = {}
+            var returnedData = []
 
+            const fetchCount = rowsPerPage === 0 ? this.pagination.rowsNumber : rowsPerPage
+            
             if (dateFrom !== undefined && dateTo !== undefined) {
                 returnedData = await Get(`v1/tarefa/?countRows=true&filter=${filter}&pageIndex=${page}&pageSize=${fetchCount}&startDate=${dateFrom}&finalDate=${dateTo}`)                
             } else {
@@ -172,19 +173,19 @@ export default {
             this.rowCount = returnedData.data.rowCount
             this.pagination.page = page
             this.pagination.rowsPerPage = rowsPerPage
-            this.datas = this.data
+            this.datas = this.data  
             
             this.isLoading = false
         },
         async loaderItems () {
-            if (this.filter !== undefined) {
-                await this.onRequest({
-                    pagination: this.pagination
-                })
-            } else {
+            if (this.filter === undefined) {
                 await this.onRequest({
                     pagination: this.pagination,
                     filter: undefined
+                })
+            } else {
+                await this.onRequest({
+                    pagination: this.pagination
                 })
             }
         },
