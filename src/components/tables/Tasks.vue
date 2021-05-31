@@ -1,19 +1,23 @@
 <template>
   <div class="q-pa-xs">
-    <div class="row q-mb-sm">
-        <q-select filled dense v-model="optionTypeSelected" label-color="dark"
-            :options="optionsType" option-value="id" option-label="nome" label="Tipo"
-            counter max-values="1" hint="Máx: 1" style="width: 250px"
-        />
-        <q-separator class="q-ml-sm" />
-        <q-select filled dense v-model="optionFrameSelected" label-color="dark"
-            :options="optionsFrame" option-value="id" option-label="nome" label="Quadro"
-            counter max-values="1" hint="Máx: 1" style="width: 250px"
-        />
+    <div class="row q-mb-sm col-12">
+        <div class="col-xs-6 col-md-2" style="padding: 2px">
+            <q-select filled dense v-model="optionTypeSelected" label-color="dark"
+                :options="optionsType" option-value="id" option-label="nome" label="Tipo"
+                counter max-values="1" hint="Máx: 1"
+            />
+        </div>
+        <div class="col-xs-6 col-md-2" style="padding: 2px">
+            <q-select filled dense v-model="optionFrameSelected" label-color="dark"
+                :options="optionsFrame" option-value="id" option-label="nome" label="Quadro"
+                counter max-values="1" hint="Máx: 1"
+            />
+        </div>
     </div>
     <q-table
         dense
         bordered
+        title="Tarefas"
         row-key="id"
         separator="cell"
         @request="onRequest"
@@ -24,16 +28,6 @@
         :data="data"
         :columns="columns"
     >
-        <template v-slot:top-left>
-            <div class="col-12 items-center">
-                <div class="row">
-                    <div class="text-h4 text-weight-light">Tarefas: {{rowCount}}</div>
-                </div>
-                <div class="row">
-                    <div class="text-weight-light q-ml-xs" style="font-size: 15px">Total: {{totalRowCount}}</div>
-                </div>
-            </div>
-        </template>
         <template v-slot:top-right>
             <div class="col-12 column">
                 <div class="row">
@@ -74,6 +68,73 @@
             </q-td>
         </template>
     </q-table>
+    <div class="row col-12 q-mt-md">
+        <div class="col-xs-12 col-md-4">
+            <q-table
+                row-key="id"
+                separator="cell"
+                bordered
+                virtual-scroll
+                dense
+                title="Cliente"
+                :filter="filterClient"
+                :rows-per-page-options="limitRows"
+                :columns="columnsCount"
+                :data="clients"
+            >
+                <template v-slot:top-right>
+                    <q-input dense v-model="filterClient" placeholder=" Buscar" bg-color="transparent" debounce="750" />
+                </template>
+            </q-table>
+        </div>
+        <div class="col-xs-12 col-md-4">
+            <q-table
+                row-key="id"
+                separator="cell"
+                bordered
+                virtual-scroll
+                dense
+                title="Quadro"
+                :filter="filterFrame"
+                :rows-per-page-options="limitRows"
+                :columns="columnsCount"
+                :data="frames"
+            >
+                <template v-slot:top-right>
+                    <q-input dense v-model="filterFrame" placeholder=" Buscar" bg-color="transparent" debounce="750" />
+                </template>
+            </q-table>
+        </div>
+        <div class="col-xs-12 col-md-4">
+            <q-table
+                row-key="id"
+                separator="cell"
+                bordered
+                virtual-scroll
+                dense
+                title="Tipo"
+                :filter="filterType"
+                :rows-per-page-options="limitRows"
+                :columns="columnsCount"
+                :data="types"
+            >
+                <template v-slot:top-right>
+                    <q-input dense v-model="filterType" placeholder=" Buscar" bg-color="transparent" debounce="750" />
+                </template>
+            </q-table>
+        </div>
+    </div>
+    <div class="row q-mt-md q-mb-md">
+        <q-card class="row items-center">
+            <q-card-section class="text-center">Total de Tarefas:</q-card-section>
+            <q-separator />
+            <q-card-section class="row flex flex-center">
+                <div class="text-h4">{{rowCount}}</div>
+                <div class="q-ml-sm q-mr-sm text-h5"> de </div>
+                <div class="text-h4">{{totalRowCount}}</div>
+            </q-card-section>
+        </q-card>
+    </div>
   </div>
 </template>
 
@@ -86,6 +147,10 @@ export default {
     data () {
         return {
             linkRunnit: 'https://runrun.it/pt-BR/tasks/',
+            filterClient: '',
+            filterType: '',
+            filterFrame: '',
+            limitRows: [3],
             rowCount: 0,
             totalRowCount: 0,
             filter: undefined,
@@ -95,6 +160,14 @@ export default {
             optionFrameSelected: null,
             optionsFrame: [],
             data: [],
+            clients: [],
+            frames: [],
+            types: [],
+            columnsCount: [
+                { name: 'id', headerClasses: 'bg-dark text-white', required: true, label: 'ID', align: 'right', field: 'id', style: 'width: 5px'},
+                { name: 'nome', headerClasses: 'bg-dark text-white', required: true, label: 'Nome', align: 'left', field: 'nome', style: 'width: 5px'},
+                { name: 'quantidade', headerClasses: 'bg-dark text-white', required: true, label: 'Quantidade', align: 'right', field: 'quantidade', style: 'width: 5px'},
+            ],
             columns: [
                 { name: 'id', headerClasses: 'bg-dark text-white', required: true, label: 'ID', align: 'right', field: 'id', style: 'width: 5px'},
                 { name: 'urgente', headerClasses: 'bg-dark text-white', required: true, label: 'Urgente', align: 'center', style: 'width: 5px'},
@@ -144,6 +217,15 @@ export default {
             })
             Get('v1/quadro').then(res => {
                 this.optionsFrame = res.data
+            })
+            Get('v1/geral/tipo').then(res => {
+                this.types = res.data
+            })
+            Get('v1/geral/quadro').then(res => {
+                this.frames = res.data
+            })
+            Get('v1/geral/cliente').then(res => {
+                this.clients = res.data
             })
         },
         async onRequest (props) {

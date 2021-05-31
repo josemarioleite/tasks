@@ -1,7 +1,7 @@
 <template>
   <q-layout class="flex flex-start">
-    <Header class="relativa" />
-    <Content class="absolute conteudo" ref="content" />
+    <Header class="absolute" style="height: 100%" />
+    <Content class="conteudo" ref="content" />
     <q-page-sticky position="bottom-right" :offset="[18, 18]">
         <q-btn @click="newTask" round color="green" icon="add">
             <q-tooltip anchor="center left" self="center end">Adicionar nova tarefa</q-tooltip>

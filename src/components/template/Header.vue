@@ -3,7 +3,6 @@
         <q-header elevated class="bg-black">
             <q-toolbar>
                 <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
-                <!-- <q-toolbar-title></q-toolbar-title> -->
             </q-toolbar>
         </q-header>
         <q-drawer

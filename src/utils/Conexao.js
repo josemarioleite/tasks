@@ -6,7 +6,7 @@ const protocolo = location.protocol
 const portaHttp = 9876
 const portaHttps = 9877
 
-let url = protocolo + '//192.168.0.14:'
+let url = protocolo + '//localhost:'
 if (protocolo === 'http:') {
   url = url + portaHttp + '/api/'
 } else if (protocolo === 'https:') {
